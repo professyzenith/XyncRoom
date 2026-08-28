@@ -127,72 +127,73 @@ export default function Navbar() {
         </nav>
         )}
 
-        {/* Desktop CTAs + Mobile Hamburger */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <motion.div whileHover={{ color: "var(--text-100)" }}>
-            <Link
-              href="/login"
-              style={{
-                padding: "7px 16px",
-                fontSize: "0.85rem",
-                color: "var(--text-400)",
-                textDecoration: "none",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Sign in
-            </Link>
-          </motion.div>
+        {/* Desktop CTAs */}
+        {!isMobile && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <motion.div whileHover={{ color: "var(--text-100)" }}>
+              <Link
+                href="/login"
+                style={{
+                  padding: "7px 16px",
+                  fontSize: "0.85rem",
+                  color: "var(--text-400)",
+                  textDecoration: "none",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Sign in
+              </Link>
+            </motion.div>
 
-          <motion.div
-            whileHover={{ scale: 1.03, y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 500, damping: 28 }}
-          >
-            <Link
-              href="/register"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 18px",
-                borderRadius: 9,
-                fontSize: "0.85rem",
-                fontWeight: 600,
-                color: "var(--text-inverted)",
-                textDecoration: "none",
-                /* Sage CTA — no neon gradient */
-                background: "var(--accent)",
-                boxShadow: "0 0 0 1px rgba(127,168,152,0.3), 0 2px 8px rgba(0,0,0,0.3)",
-                letterSpacing: "-0.01em",
-              }}
+            <motion.div
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 500, damping: 28 }}
             >
-              Get started free
-            </Link>
-          </motion.div>
+              <Link
+                href="/register"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 18px",
+                  borderRadius: 9,
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  color: "var(--text-inverted)",
+                  textDecoration: "none",
+                  background: "var(--accent)",
+                  boxShadow: "0 0 0 1px rgba(127,168,152,0.3), 0 2px 8px rgba(0,0,0,0.3)",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Get started free
+              </Link>
+            </motion.div>
+          </div>
+        )}
 
-          {/* Mobile menu toggle — only visible on mobile */}
-          {isMobile && (
+        {/* Mobile menu toggle — only visible on mobile */}
+        {isMobile && (
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setMobileOpen(!mobileOpen)}
             style={{
               display: "flex",
-              width: 38,
-              height: 38,
-              borderRadius: 8,
+              width: 40,
+              height: 40,
+              borderRadius: 10,
               background: scrolled ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.04)",
-              border: "1px solid rgba(0,0,0,0.10)",
+              border: "1px solid rgba(0,0,0,0.12)",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              color: "var(--text-200)",
+              color: "var(--text-100)",
             }}
           >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </motion.button>
-          )}
-        </div>
+        )}
       </motion.header>
 
       {/* Mobile menu */}

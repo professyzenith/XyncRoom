@@ -86,6 +86,14 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
 
   const [introComplete, setIntroComplete] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     let id = localStorage.getItem("xyncroom_pm_id");
@@ -257,72 +265,95 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
       {!introComplete && <IntroAnimation onComplete={handleIntroComplete} />}
       <div style={{ 
         display: "flex", 
+        flexDirection: isMobile ? "column" : "row",
         minHeight: "100vh", 
         background: bgApp, 
         color: textDark, 
         fontFamily: fontFam, 
-        padding: "24px", 
-        gap: "24px",
+        padding: isMobile ? "14px 10px" : "24px", 
+        gap: isMobile ? "16px" : "24px",
         opacity: introComplete ? 1 : 0,
         transition: "opacity 0.9s ease"
       }}>
       
       {/* 1. Left Sidebar Navigation (Floating Pill) */}
       <aside style={{ 
-        width: "240px", 
+        width: isMobile ? "100%" : "240px", 
         background: bgCard, 
         display: "flex", flexDirection: "column", 
-        padding: "32px 20px",
-        borderRadius: "32px", 
-        boxShadow: softShadow
+        padding: isMobile ? "16px 14px" : "32px 20px",
+        borderRadius: isMobile ? "20px" : "32px", 
+        boxShadow: softShadow,
+        flexShrink: 0
       }}>
+        {/* Brand & User info */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 10, padding: "0 10px", marginBottom: "32px",
+          display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isMobile ? "12px" : "28px",
           fontSize: "1.2rem", fontWeight: 900, color: textDark, letterSpacing: "-0.5px"
         }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 8,
-            background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#fff", fontSize: "0.8rem", flexShrink: 0
-          }}>
-            XR
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 8,
+              background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#fff", fontSize: "0.8rem", flexShrink: 0
+            }}>
+              XR
+            </div>
+            XyncRoom
           </div>
-          XyncRoom
+          {isMobile && (
+            <button onClick={handleSignOut} disabled={isSigningOut} style={{ 
+              background: "#fef2f2", border: "none", color: "#ef4444", cursor: "pointer", padding: "6px 12px", 
+              display: "flex", alignItems: "center", gap: 4, borderRadius: "100px", 
+              fontWeight: 700, fontSize: "0.78rem" 
+            }}>
+              <LogOut size={13} strokeWidth={2.5} /> Sign out
+            </button>
+          )}
         </div>
 
+        {/* Profile Card */}
         <div style={{ 
-          padding: "20px 16px", background: "rgba(255, 255, 255, 0.6)", borderRadius: "24px", 
-          display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginBottom: "40px"
+          padding: isMobile ? "10px 14px" : "20px 16px", background: "rgba(255, 255, 255, 0.6)", borderRadius: isMobile ? "14px" : "24px", 
+          display: "flex", flexDirection: isMobile ? "row" : "column", alignItems: "center", gap: 12,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.02)", marginBottom: isMobile ? "14px" : "40px"
         }}>
-          <div style={{ width: 64, height: 64, background: user.avatarUrl ? "#fff" : charcoal, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", fontWeight: "800", color: "#fff", overflow: "hidden", border: user.avatarUrl ? "3px solid #fff" : "none", flexShrink: 0, boxShadow: "0 4px 14px rgba(0,0,0,0.12)" }}>
+          <div style={{ width: isMobile ? 40 : 64, height: isMobile ? 40 : 64, background: user.avatarUrl ? "#fff" : charcoal, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? "0.95rem" : "1.2rem", fontWeight: "800", color: "#fff", overflow: "hidden", border: user.avatarUrl ? "2px solid #fff" : "none", flexShrink: 0, boxShadow: "0 4px 14px rgba(0,0,0,0.12)" }}>
             {user.avatarUrl ? <img src={user.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : user.initials}
           </div>
-          <span style={{ fontSize: "1rem", fontWeight: 800, color: textDark, textAlign: "center", lineHeight: "1.3", letterSpacing: "-0.3px", wordBreak: "break-word" }}>{user.fullName}</span>
+          <span style={{ fontSize: isMobile ? "0.95rem" : "1rem", fontWeight: 800, color: textDark, textAlign: isMobile ? "left" : "center", lineHeight: "1.3", letterSpacing: "-0.3px", wordBreak: "break-word" }}>{user.fullName}</span>
         </div>
 
         {/* Navigation Links */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-          <div onClick={() => setActiveTab('home')} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: activeTab === 'home' ? charcoal : "transparent", color: activeTab === 'home' ? "#fff" : textLight, fontWeight: 700, cursor: "pointer", borderRadius: "100px", boxShadow: activeTab === 'home' ? "0 8px 24px rgba(36,37,40,0.2)" : "none", fontSize: "0.95rem" }} onMouseOver={(e) => { if(activeTab !== 'home') { e.currentTarget.style.background = "#f7f7f7"; e.currentTarget.style.color = textDark; } }} onMouseOut={(e) => { if(activeTab !== 'home') { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = textLight; } }}>
-            <Home size={20} color={activeTab === 'home' ? yellowAccent : "currentColor"} strokeWidth={2.5} />
+        <nav style={{ 
+          display: "flex", 
+          flexDirection: isMobile ? "row" : "column", 
+          gap: 8, 
+          flex: isMobile ? "none" : 1,
+          overflowX: isMobile ? "auto" : "visible",
+          paddingBottom: isMobile ? "4px" : "0",
+          WebkitOverflowScrolling: "touch"
+        }}>
+          <div onClick={() => setActiveTab('home')} style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "8px 14px" : "14px 18px", background: activeTab === 'home' ? charcoal : "transparent", color: activeTab === 'home' ? "#fff" : textLight, fontWeight: 700, cursor: "pointer", borderRadius: "100px", boxShadow: activeTab === 'home' ? "0 8px 24px rgba(36,37,40,0.2)" : "none", fontSize: isMobile ? "0.85rem" : "0.95rem", whiteSpace: "nowrap" }}>
+            <Home size={18} color={activeTab === 'home' ? yellowAccent : "currentColor"} strokeWidth={2.5} />
             <span>Home</span>
           </div>
-          <div onClick={() => setActiveTab('schedule')} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: activeTab === 'schedule' ? charcoal : "transparent", color: activeTab === 'schedule' ? "#fff" : textLight, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", boxShadow: activeTab === 'schedule' ? "0 8px 24px rgba(36,37,40,0.2)" : "none", fontSize: "0.95rem" }} onMouseOver={(e) => { if(activeTab !== 'schedule') { e.currentTarget.style.background = "#f7f7f7"; e.currentTarget.style.color = textDark; } }} onMouseOut={(e) => { if(activeTab !== 'schedule') { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = textLight; } }}>
-            <CalendarIcon size={20} color={activeTab === 'schedule' ? yellowAccent : "currentColor"} strokeWidth={2.5} />
+          <div onClick={() => setActiveTab('schedule')} style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "8px 14px" : "14px 18px", background: activeTab === 'schedule' ? charcoal : "transparent", color: activeTab === 'schedule' ? "#fff" : textLight, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", boxShadow: activeTab === 'schedule' ? "0 8px 24px rgba(36,37,40,0.2)" : "none", fontSize: isMobile ? "0.85rem" : "0.95rem", whiteSpace: "nowrap" }}>
+            <CalendarIcon size={18} color={activeTab === 'schedule' ? yellowAccent : "currentColor"} strokeWidth={2.5} />
             <span>Schedule</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", color: textLight, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", fontSize: "0.95rem" }} onMouseOver={(e) => { e.currentTarget.style.background = "#f7f7f7"; e.currentTarget.style.color = textDark; }} onMouseOut={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = textLight; }}>
-            <Users size={20} strokeWidth={2.5} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "8px 14px" : "14px 18px", color: textLight, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", fontSize: isMobile ? "0.85rem" : "0.95rem", whiteSpace: "nowrap" }}>
+            <Users size={18} strokeWidth={2.5} />
             <span>Contacts</span>
           </div>
-          <div onClick={() => setActiveTab('settings')} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: activeTab === 'settings' ? charcoal : "transparent", color: activeTab === 'settings' ? "#fff" : textLight, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", boxShadow: activeTab === 'settings' ? "0 8px 24px rgba(36,37,40,0.2)" : "none", fontSize: "0.95rem" }} onMouseOver={(e) => { if(activeTab !== 'settings') { e.currentTarget.style.background = "#f7f7f7"; e.currentTarget.style.color = textDark; } }} onMouseOut={(e) => { if(activeTab !== 'settings') { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = textLight; } }}>
-            <Settings size={20} color={activeTab === 'settings' ? yellowAccent : "currentColor"} strokeWidth={2.5} />
+          <div onClick={() => setActiveTab('settings')} style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "8px 14px" : "14px 18px", background: activeTab === 'settings' ? charcoal : "transparent", color: activeTab === 'settings' ? "#fff" : textLight, fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", boxShadow: activeTab === 'settings' ? "0 8px 24px rgba(36,37,40,0.2)" : "none", fontSize: isMobile ? "0.85rem" : "0.95rem", whiteSpace: "nowrap" }}>
+            <Settings size={18} color={activeTab === 'settings' ? yellowAccent : "currentColor"} strokeWidth={2.5} />
             <span>Settings</span>
           </div>
           
-          <div onClick={() => router.push("/pricing")} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", color: "#fbbf24", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", fontSize: "0.95rem", marginTop: 8 }} onMouseOver={(e) => { e.currentTarget.style.background = "rgba(251,191,36,0.1)"; }} onMouseOut={(e) => { e.currentTarget.style.background = "transparent"; }}>
-            <Star size={20} strokeWidth={2.5} />
+          <div onClick={() => router.push("/pricing")} style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "8px 14px" : "14px 18px", color: "#fbbf24", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", fontSize: isMobile ? "0.85rem" : "0.95rem", whiteSpace: "nowrap" }}>
+            <Star size={18} strokeWidth={2.5} />
             <span>Upgrade</span>
           </div>
 
@@ -330,14 +361,12 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
           {isAdmin && (
             <div
               onClick={() => setActiveTab('inbox')}
-              style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: activeTab === 'inbox' ? "#166534" : "transparent", color: activeTab === 'inbox' ? "#fff" : "#16a34a", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", boxShadow: activeTab === 'inbox' ? "0 8px 24px rgba(22,101,52,0.2)" : "none", fontSize: "0.95rem", marginTop: 4 }}
-              onMouseOver={(e) => { if(activeTab !== 'inbox') { e.currentTarget.style.background = "#f0fdf4"; }}}
-              onMouseOut={(e) => { if(activeTab !== 'inbox') { e.currentTarget.style.background = "transparent"; }}}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: isMobile ? "8px 14px" : "14px 18px", background: activeTab === 'inbox' ? "#166534" : "transparent", color: activeTab === 'inbox' ? "#fff" : "#16a34a", fontWeight: 700, cursor: "pointer", transition: "all 0.2s", borderRadius: "100px", boxShadow: activeTab === 'inbox' ? "0 8px 24px rgba(22,101,52,0.2)" : "none", fontSize: isMobile ? "0.85rem" : "0.95rem", whiteSpace: "nowrap" }}
             >
-              <Inbox size={20} strokeWidth={2.5} />
+              <Inbox size={18} strokeWidth={2.5} />
               <span>Inbox</span>
               {messages.length > 0 && (
-                <span style={{ marginLeft: "auto", background: "#dc2626", color: "#fff", fontSize: "0.68rem", fontWeight: 800, padding: "2px 7px", borderRadius: "100px" }}>
+                <span style={{ marginLeft: "auto", background: "#dc2626", color: "#fff", fontSize: "0.65rem", fontWeight: 800, padding: "1px 6px", borderRadius: "100px" }}>
                   {messages.length}
                 </span>
               )}
@@ -345,60 +374,67 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
           )}
         </nav>
 
-        {/* Sign out at bottom */}
-        <button onClick={handleSignOut} disabled={isSigningOut} style={{ 
-          marginTop: "auto", background: "#fff", border: "none", color: textLight, cursor: "pointer", padding: "14px", 
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: "100px", 
-          fontWeight: 700, transition: "background 0.2s, color 0.2s" 
-        }} 
-        onMouseOver={(e) => { e.currentTarget.style.background = "#f7f7f7"; e.currentTarget.style.color = "#ef4444"; }} 
-        onMouseOut={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = textLight; }}>
-          {isSigningOut ? <div style={{ width: 14, height: 14, border: `2px solid ${textLight}`, borderTopColor: "transparent", animation: "spin 1s linear infinite", borderRadius: "50%" }} /> : (
-            <>
-              <LogOut size={16} strokeWidth={2.5} /> Sign out
-            </>
-          )}
-        </button>
+        {/* Sign out at bottom (desktop only) */}
+        {!isMobile && (
+          <button onClick={handleSignOut} disabled={isSigningOut} style={{ 
+            marginTop: "auto", background: "#fff", border: "none", color: textLight, cursor: "pointer", padding: "14px", 
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: "100px", 
+            fontWeight: 700, transition: "background 0.2s, color 0.2s" 
+          }} 
+          onMouseOver={(e) => { e.currentTarget.style.background = "#f7f7f7"; e.currentTarget.style.color = "#ef4444"; }} 
+          onMouseOut={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = textLight; }}>
+            {isSigningOut ? <div style={{ width: 14, height: 14, border: `2px solid ${textLight}`, borderTopColor: "transparent", animation: "spin 1s linear infinite", borderRadius: "50%" }} /> : (
+              <>
+                <LogOut size={16} strokeWidth={2.5} /> Sign out
+              </>
+            )}
+          </button>
+        )}
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", padding: "8px" }}>
+      <main style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", padding: isMobile ? "0" : "8px", width: "100%" }}>
         
         {/* 2. Header & Live Clock */}
         <header style={{ 
-          display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "32px"
+          display: "flex", 
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "center", 
+          justifyContent: "space-between", 
+          marginBottom: isMobile ? "20px" : "32px",
+          gap: isMobile ? 12 : 0
         }}>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
             {activeTab === 'home' && (
               <>
-                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>Hi, {user.fullName.split(' ')[0]}!</h1>
-                <p style={{ margin: 0, color: textLight, fontSize: "1rem", fontWeight: 600 }}>Let's take a look at your activity today</p>
+                <h1 style={{ fontSize: isMobile ? "1.6rem" : "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>Hi, {user.fullName.split(' ')[0]}!</h1>
+                <p style={{ margin: 0, color: textLight, fontSize: isMobile ? "0.88rem" : "1rem", fontWeight: 600 }}>Let's take a look at your activity today</p>
               </>
             )}
             {activeTab === 'schedule' && (
               <>
-                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>Schedule</h1>
-                <p style={{ margin: 0, color: textLight, fontSize: "1rem", fontWeight: 600 }}>Set up a new meeting with your team</p>
+                <h1 style={{ fontSize: isMobile ? "1.6rem" : "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>Schedule</h1>
+                <p style={{ margin: 0, color: textLight, fontSize: isMobile ? "0.88rem" : "1rem", fontWeight: 600 }}>Set up a new meeting with your team</p>
               </>
             )}
             {activeTab === 'settings' && (
               <>
-                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>Settings</h1>
-                <p style={{ margin: 0, color: textLight, fontSize: "1rem", fontWeight: 600 }}>Manage your personal details and preferences</p>
+                <h1 style={{ fontSize: isMobile ? "1.6rem" : "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>Settings</h1>
+                <p style={{ margin: 0, color: textLight, fontSize: isMobile ? "0.88rem" : "1rem", fontWeight: 600 }}>Manage your personal details and preferences</p>
               </>
             )}
             {activeTab === 'inbox' && (
               <>
-                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>📥 Support Inbox</h1>
-                <p style={{ margin: 0, color: textLight, fontSize: "1rem", fontWeight: 600 }}>Messages from your users</p>
+                <h1 style={{ fontSize: isMobile ? "1.6rem" : "2.2rem", fontWeight: 800, margin: "0 0 4px 0", color: textDark, letterSpacing: "-1px" }}>📥 Support Inbox</h1>
+                <p style={{ margin: 0, color: textLight, fontSize: isMobile ? "0.88rem" : "1rem", fontWeight: 600 }}>Messages from your users</p>
               </>
             )}
           </motion.div>
           
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {/* Clock Pill */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, background: charcoal, padding: "12px 24px", borderRadius: "100px", boxShadow: "0 8px 24px rgba(36,37,40,0.2)" }}>
-              <span style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, background: charcoal, padding: isMobile ? "8px 16px" : "12px 24px", borderRadius: "100px", boxShadow: "0 8px 24px rgba(36,37,40,0.2)" }}>
+              <span style={{ fontSize: isMobile ? "0.85rem" : "1rem", fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums" }}>
                 {currentTime ? formatTime(currentTime) : "--:--"}
               </span>
             </div>
@@ -406,16 +442,16 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
             <button
               onClick={() => router.replace("/")}
               style={{
-                display: "flex", alignItems: "center", gap: 8,
+                display: "flex", alignItems: "center", gap: 6,
                 background: "#fecaca", color: "#ef4444", border: "none",
-                padding: "12px 24px", borderRadius: "100px",
-                fontSize: "0.95rem", fontWeight: 700, cursor: "pointer",
+                padding: isMobile ? "8px 16px" : "12px 24px", borderRadius: "100px",
+                fontSize: isMobile ? "0.85rem" : "0.95rem", fontWeight: 700, cursor: "pointer",
                 transition: "all 0.2s"
               }}
               onMouseOver={(e) => { e.currentTarget.style.background = "#f87171"; e.currentTarget.style.color = "#fff"; }}
               onMouseOut={(e) => { e.currentTarget.style.background = "#fecaca"; e.currentTarget.style.color = "#ef4444"; }}
             >
-              <LogOut size={18} strokeWidth={2.5} /> Exit
+              <LogOut size={16} strokeWidth={2.5} /> Exit
             </button>
           </motion.div>
         </header>
@@ -428,11 +464,11 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
         >
           
           {activeTab === 'home' && (
-            <div style={{ display: "grid", gridTemplateColumns: "350px 1fr", gap: 32 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "350px 1fr", gap: isMobile ? 18 : 32 }}>
               {/* Left Column */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 18 : 32 }}>
                 {/* Profile Card */}
-                <motion.div variants={itemVariants} style={{ background: bgCard, borderRadius: "24px", padding: "32px", boxShadow: softShadow, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <motion.div variants={itemVariants} style={{ background: bgCard, borderRadius: "24px", padding: isMobile ? "24px 18px" : "32px", boxShadow: softShadow, display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <div style={{ width: 80, height: 80, background: user.avatarUrl ? "#fff" : bgApp, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", fontWeight: 800, color: textDark, marginBottom: 16, overflow: "hidden", border: user.avatarUrl ? "4px solid #fff" : "none", boxShadow: "0 8px 16px rgba(0,0,0,0.08)" }}>
                     {user.avatarUrl ? <img src={user.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : user.initials}
                   </div>
@@ -441,7 +477,7 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
                 </motion.div>
 
                 {/* Promo Card */}
-                <motion.div variants={itemVariants} style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)", borderRadius: "24px", padding: "32px", boxShadow: "0 12px 32px rgba(37,99,235,0.3)", color: "#fff", position: "relative", overflow: "hidden" }}>
+                <motion.div variants={itemVariants} style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)", borderRadius: "24px", padding: isMobile ? "24px 18px" : "32px", boxShadow: "0 12px 32px rgba(37,99,235,0.3)", color: "#fff", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "relative", zIndex: 10 }}>
                     <div style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "4px 10px", borderRadius: "8px", fontSize: "0.8rem", fontWeight: 800, marginBottom: 16 }}>XR Vision Pro</div>
                     <h3 style={{ fontSize: "1.4rem", fontWeight: 800, margin: "0 0 8px 0", letterSpacing: "-0.5px" }}>Unlock Superpowers!</h3>
@@ -453,48 +489,48 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
               </div>
 
               {/* Right Column */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 18 : 32 }}>
                 {/* Quick Actions Card */}
-                <motion.div variants={itemVariants} style={{ background: bgCard, borderRadius: "24px", padding: "40px", boxShadow: softShadow }}>
+                <motion.div variants={itemVariants} style={{ background: bgCard, borderRadius: "24px", padding: isMobile ? "24px 16px" : "40px", boxShadow: softShadow }}>
                   
                   {/* Icon Row */}
-                  <div style={{ display: "flex", gap: 48, marginBottom: 40, justifyContent: "center" }}>
+                  <div style={{ display: "flex", gap: isMobile ? 20 : 48, marginBottom: isMobile ? 24 : 40, justifyContent: "center", flexWrap: isMobile ? "wrap" : "nowrap" }}>
                     {/* Schedule */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => setActiveTab('schedule')}>
-                      <motion.div whileHover={{ y: -4, boxShadow: "0 12px 24px rgba(45,91,255,0.2)" }} style={{ width: 80, height: 80, borderRadius: "24px", background: "#2D5BFF", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(45,91,255,0.1)" }}>
-                        <CalendarIcon size={32} strokeWidth={2.5} />
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => setActiveTab('schedule')}>
+                      <motion.div whileHover={{ y: -4, boxShadow: "0 12px 24px rgba(45,91,255,0.2)" }} style={{ width: isMobile ? 64 : 80, height: isMobile ? 64 : 80, borderRadius: isMobile ? "18px" : "24px", background: "#2D5BFF", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(45,91,255,0.1)" }}>
+                        <CalendarIcon size={isMobile ? 26 : 32} strokeWidth={2.5} />
                       </motion.div>
-                      <span style={{ fontWeight: 700, color: textDark, fontSize: "0.95rem" }}>Schedule</span>
+                      <span style={{ fontWeight: 700, color: textDark, fontSize: isMobile ? "0.85rem" : "0.95rem" }}>Schedule</span>
                     </div>
                     {/* Join */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => {
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={() => {
                         const id = prompt("Enter Room ID to join:");
                         if (id) router.push(`/room/${id}`);
                       }}>
-                      <motion.div whileHover={{ y: -4, boxShadow: "0 12px 24px rgba(45,91,255,0.2)" }} style={{ width: 80, height: 80, borderRadius: "24px", background: "#2D5BFF", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(45,91,255,0.1)" }}>
-                        <Plus size={36} strokeWidth={3} />
+                      <motion.div whileHover={{ y: -4, boxShadow: "0 12px 24px rgba(45,91,255,0.2)" }} style={{ width: isMobile ? 64 : 80, height: isMobile ? 64 : 80, borderRadius: isMobile ? "18px" : "24px", background: "#2D5BFF", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(45,91,255,0.1)" }}>
+                        <Plus size={isMobile ? 28 : 36} strokeWidth={3} />
                       </motion.div>
-                      <span style={{ fontWeight: 700, color: textDark, fontSize: "0.95rem" }}>Join</span>
+                      <span style={{ fontWeight: 700, color: textDark, fontSize: isMobile ? "0.85rem" : "0.95rem" }}>Join</span>
                     </div>
                     {/* Host */}
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={handleStartMeeting}>
-                      <motion.div whileHover={{ y: -4, boxShadow: "0 12px 24px rgba(249,115,22,0.2)" }} style={{ width: 80, height: 80, borderRadius: "24px", background: "#f97316", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(249,115,22,0.1)" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, cursor: "pointer" }} onClick={handleStartMeeting}>
+                      <motion.div whileHover={{ y: -4, boxShadow: "0 12px 24px rgba(249,115,22,0.2)" }} style={{ width: isMobile ? 64 : 80, height: isMobile ? 64 : 80, borderRadius: isMobile ? "18px" : "24px", background: "#f97316", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 16px rgba(249,115,22,0.1)" }}>
                         {isStartingMeeting ? (
-                          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} style={{ width: 28, height: 28, border: `3px solid rgba(255,255,255,0.3)`, borderTopColor: "#fff", borderRadius: "50%" }} />
+                          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} style={{ width: 24, height: 24, border: `3px solid rgba(255,255,255,0.3)`, borderTopColor: "#fff", borderRadius: "50%" }} />
                         ) : (
-                          <Video size={36} strokeWidth={2.5} />
+                          <Video size={isMobile ? 28 : 36} strokeWidth={2.5} />
                         )}
                       </motion.div>
-                      <span style={{ fontWeight: 700, color: textDark, fontSize: "0.95rem" }}>Host</span>
+                      <span style={{ fontWeight: 700, color: textDark, fontSize: isMobile ? "0.85rem" : "0.95rem" }}>Host</span>
                     </div>
                   </div>
 
-                  <div style={{ width: "100%", height: 1, background: "rgba(36,37,40,0.05)", marginBottom: 24 }}></div>
+                  <div style={{ width: "100%", height: 1, background: "rgba(36,37,40,0.05)", marginBottom: 20 }}></div>
 
                   {/* Personal Meeting ID */}
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                    <span style={{ color: textDark, fontWeight: 800, fontSize: "1.1rem" }}>Personal Meeting ID</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, color: textLight, fontWeight: 700, fontSize: "1.1rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                    <span style={{ color: textDark, fontWeight: 800, fontSize: isMobile ? "0.95rem" : "1.1rem" }}>Personal Meeting ID</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, color: textLight, fontWeight: 700, fontSize: isMobile ? "0.95rem" : "1.1rem" }}>
                       {personalMeetingId}
                       <button style={{ background: "none", border: "none", color: textLight, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 4 }} onClick={() => navigator.clipboard.writeText(personalMeetingId)}><Copy size={16} strokeWidth={2.5} /></button>
                     </div>
@@ -502,15 +538,15 @@ export default function DashboardClient({ user }: { user: UserInfo }) {
                 </motion.div>
 
                 {/* Upcoming Meetings */}
-                <motion.div variants={itemVariants} style={{ background: bgCard, borderRadius: "24px", padding: "40px", boxShadow: softShadow }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
-                    <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: textDark, margin: 0 }}>Meetings</h2>
-                    <span style={{ color: "#2D5BFF", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer" }}>Visit Meetings</span>
+                <motion.div variants={itemVariants} style={{ background: bgCard, borderRadius: "24px", padding: isMobile ? "24px 18px" : "40px", boxShadow: softShadow }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                    <h2 style={{ fontSize: isMobile ? "1.25rem" : "1.5rem", fontWeight: 800, color: textDark, margin: 0 }}>Meetings</h2>
+                    <span style={{ color: "#2D5BFF", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer" }}>Visit Meetings</span>
                   </div>
                   
-                  <div style={{ background: bgApp, padding: "40px 32px", borderRadius: "16px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, textAlign: "center" }}>
-                    <span style={{ color: textDark, fontWeight: 800, fontSize: "1.1rem" }}>No Upcoming Meetings</span>
-                    <button style={{ background: "transparent", border: "2px solid rgba(36,37,40,0.08)", color: "#2D5BFF", fontWeight: 700, padding: "12px 24px", borderRadius: "100px", cursor: "pointer", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "rgba(45,91,255,0.05)"} onMouseOut={e => e.currentTarget.style.background = "transparent"}>Test Audio and Video</button>
+                  <div style={{ background: bgApp, padding: isMobile ? "28px 18px" : "40px 32px", borderRadius: "16px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, textAlign: "center" }}>
+                    <span style={{ color: textDark, fontWeight: 800, fontSize: isMobile ? "0.95rem" : "1.1rem" }}>No Upcoming Meetings</span>
+                    <button style={{ background: "transparent", border: "2px solid rgba(36,37,40,0.08)", color: "#2D5BFF", fontWeight: 700, padding: "10px 20px", borderRadius: "100px", cursor: "pointer", fontSize: isMobile ? "0.85rem" : "0.95rem", transition: "all 0.2s" }} onMouseOver={e => e.currentTarget.style.background = "rgba(45,91,255,0.05)"} onMouseOut={e => e.currentTarget.style.background = "transparent"}>Test Audio and Video</button>
                   </div>
                 </motion.div>
 

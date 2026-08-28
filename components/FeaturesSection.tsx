@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 
 /* ─── Palette ─── */
@@ -180,12 +180,13 @@ const GlobeIcon = () => (
 
 /* ─── Feature card ─── */
 function Card({
-  children, span = 1, delay = 0, style = {},
+  children, span = 1, delay = 0, style = {}, isMobile = false,
 }: {
   children: React.ReactNode;
   span?: 1 | 2;
   delay?: number;
   style?: React.CSSProperties;
+  isMobile?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
@@ -200,12 +201,12 @@ function Card({
       className="shimmer-card card-3d glow-hover"
       data-tilt
       style={{
-        gridColumn: span === 2 ? "span 2" : "span 1",
+        gridColumn: (!isMobile && span === 2) ? "span 2" : "span 1",
         background: "var(--surface-1)",
         borderRadius: 20,
         border: "1px solid rgba(0,0,0,0.08)",
         boxShadow: "0 0 0 1px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset",
-        padding: "28px 28px 24px",
+        padding: isMobile ? "20px 18px 18px" : "28px 28px 24px",
         overflow: "hidden",
         position: "relative",
         cursor: "default",
@@ -223,10 +224,18 @@ function Card({
 export default function FeaturesSection() {
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   return (
     <section
-      style={{ padding: "120px 0 100px", position: "relative" }}
+      style={{ padding: isMobile ? "60px 0 60px" : "120px 0 100px", position: "relative" }}
       aria-label="Platform features"
     >
       {/* Section divider */}
@@ -272,19 +281,19 @@ export default function FeaturesSection() {
         {/* ── Bento grid ── */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 14,
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+          gap: isMobile ? 16 : 14,
         }}>
 
           {/* Card 1 — HD Video (2 col wide) */}
-          <Card span={2} delay={0.05}>
+          <Card span={2} delay={0.05} isMobile={isMobile}>
             {/* Sage top line */}
             <div style={{
               position: "absolute", top: 0, left: 0, right: 0, height: 2,
               background: "linear-gradient(90deg, var(--accent), transparent)",
               borderRadius: "20px 20px 0 0",
             }} />
-            <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 24, alignItems: "flex-start" }}>
               <div style={{ flex: 1 }}>
                 <div style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
@@ -307,18 +316,18 @@ export default function FeaturesSection() {
                 }}>
                   Crystal clear<br />HD video
                 </h3>
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)", maxWidth: 240 }}>
+                <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)", maxWidth: isMobile ? "100%" : 240 }}>
                   Adaptive bitrate keeps every call smooth — whether you&apos;re on fibre or a coffee shop Wi-Fi.
                 </p>
               </div>
-              <div style={{ width: 200, flexShrink: 0, marginTop: 4 }}>
+              <div style={{ width: isMobile ? "100%" : 200, flexShrink: 0, marginTop: 4 }}>
                 <MiniMeetingRoom />
               </div>
             </div>
           </Card>
 
           {/* Card 2 — Security */}
-          <Card delay={0.1}>
+          <Card delay={0.1} isMobile={isMobile}>
             <div style={{
               width: 44, height: 44, borderRadius: 12,
               background: "rgba(74,144,112,0.09)",
@@ -357,7 +366,7 @@ export default function FeaturesSection() {
           </Card>
 
           {/* Card 3 — Instant join */}
-          <Card delay={0.12}>
+          <Card delay={0.12} isMobile={isMobile}>
             <div style={{
               width: 44, height: 44, borderRadius: 12,
               background: "rgba(74,144,112,0.09)",
@@ -399,7 +408,7 @@ export default function FeaturesSection() {
           </Card>
 
           {/* Card 4 — Works everywhere */}
-          <Card delay={0.15}>
+          <Card delay={0.15} isMobile={isMobile}>
             <div style={{
               width: 44, height: 44, borderRadius: 12,
               background: "rgba(74,144,112,0.09)",
@@ -422,7 +431,7 @@ export default function FeaturesSection() {
             <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)" }}>
               Chrome, Safari, Firefox, Edge. Mobile or desktop. Any device, zero friction.
             </p>
-            <div style={{ marginTop: 18, display: "flex", gap: 8, alignItems: "center" }}>
+            <div style={{ marginTop: 18, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
               {["Chrome", "Safari", "Firefox", "Edge"].map((b) => (
                 <span key={b} style={{
                   fontFamily: "var(--font-mono)", fontSize: "0.55rem",
@@ -436,8 +445,8 @@ export default function FeaturesSection() {
           </Card>
 
           {/* Card 5 — Chat (2 col wide) */}
-          <Card span={2} delay={0.18}>
-            <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+          <Card span={2} delay={0.18} isMobile={isMobile}>
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 24, alignItems: "flex-start" }}>
               <div style={{ flex: 1 }}>
                 <h3 style={{
                   fontFamily: "var(--font-display)",
@@ -450,11 +459,11 @@ export default function FeaturesSection() {
                 }}>
                   Conversations<br />that persist
                 </h3>
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)", maxWidth: 260 }}>
+                <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: "var(--leading-relaxed)", maxWidth: isMobile ? "100%" : 260 }}>
                   Chat, files, and decisions stay with your team long after the call ends. Context never gets lost.
                 </p>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, width: 200, flexShrink: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, width: isMobile ? "100%" : 200, flexShrink: 0 }}>
                 <MiniChat />
                 <MiniNotes />
               </div>
