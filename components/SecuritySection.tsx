@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 
 
@@ -77,7 +77,7 @@ function StatChip({ value, label, delay = 0, isText }: {
       transition={{ duration: 0.5, delay: delay + 0.1, ease: [0.16, 1, 0.3, 1] }}
       className="shimmer-card"
       style={{
-        textAlign: "center", padding: "16px 12px",
+        textAlign: "center", padding: "16px 10px",
         borderRadius: 12, background: "#ffffff",
         border: "1px solid rgba(0,0,0,0.08)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset",
@@ -85,7 +85,7 @@ function StatChip({ value, label, delay = 0, isText }: {
     >
       <div
         style={{
-          fontFamily: "var(--font-display)", fontSize: "1.15rem",
+          fontFamily: "var(--font-display)", fontSize: "1.1rem",
           fontWeight: 800, letterSpacing: "-0.04em",
           color: "var(--text-primary)", marginBottom: 5,
         }}
@@ -107,10 +107,18 @@ function StatChip({ value, label, delay = 0, isText }: {
 export default function SecuritySection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "100px" });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   return (
     <section style={{
-      padding: "100px 0 130px",
+      padding: isMobile ? "60px 0 70px" : "100px 0 130px",
       borderTop: "1px solid var(--border-subtle)",
       position: "relative", overflow: "hidden",
     }}>
@@ -131,8 +139,10 @@ export default function SecuritySection() {
 
       <div className="container">
         <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: 80, alignItems: "center",
+          display: "grid", 
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          gap: isMobile ? 36 : 80, 
+          alignItems: "center",
         }}>
 
           {/* ── Left: text ── */}

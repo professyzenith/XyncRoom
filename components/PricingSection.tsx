@@ -1,11 +1,20 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Zap, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function PricingSection() {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const handleSubscribe = () => {
     router.push("/pricing");
@@ -29,7 +38,7 @@ export default function PricingSection() {
   return (
     <section id="plans" style={{
       position: "relative",
-      padding: "120px 24px",
+      padding: isMobile ? "60px 16px" : "120px 24px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -42,7 +51,7 @@ export default function PricingSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        style={{ textAlign: "center", maxWidth: 600, marginBottom: 80 }}
+        style={{ textAlign: "center", maxWidth: 600, marginBottom: isMobile ? 40 : 80 }}
       >
         <span style={{ 
           fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "0.85rem",

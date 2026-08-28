@@ -1,16 +1,26 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function Footer() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   return (
     <footer style={{
       borderTop: "1px solid rgba(0,0,0,0.09)",
       background: "rgba(0,0,0,0.025)",  /* very slight dark tint — differentiates footer */
     }}>
       {/* ── CTA block ── */}
-      <div style={{ padding: "120px 40px 80px" }}>
+      <div style={{ padding: isMobile ? "60px 16px 40px" : "120px 40px 80px" }}>
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
