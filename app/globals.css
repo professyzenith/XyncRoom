@@ -444,8 +444,41 @@ nextjs-portal,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MOBILE — Lighter animations for phones & tablets
+   PERF-OPTIMIZED — Adaptive Hardware Performance for Mobile & Low-Spec Devices
    ═══════════════════════════════════════════════════════════════════════════ */
+.perf-optimized * {
+  /* Enforce smooth GPU transform rendering */
+  -webkit-font-smoothing: antialiased;
+}
+
+.perf-optimized .shimmer-card::after,
+.perf-optimized .animated-border::before,
+.perf-optimized .hologram-card::before {
+  display: none !important;
+}
+
+.perf-optimized .anim-float,
+.perf-optimized .anim-float-slow,
+.perf-optimized .anim-breathe,
+.perf-optimized .anim-card-float,
+.perf-optimized .anim-orbit,
+.perf-optimized .gradient-text-anim,
+.perf-optimized .anim-pulse-soft,
+.perf-optimized .text-mask-reveal {
+  animation: none !important;
+}
+
+.perf-optimized .glass-panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.touch-device * {
+  /* Prevent touch delay */
+  touch-action: manipulation;
+}
+
 @media (max-width: 768px) {
   :root {
     --container-pad: 20px;
@@ -454,9 +487,9 @@ nextjs-portal,
   /* Disable heavy effects on mobile for performance */
   .shimmer-card::after { display: none; }
   .card-3d:hover { transform: translateY(-3px); }
-  .animated-border::before { animation-duration: 8s; }
-  .anim-float { animation-duration: 6s; }
-  .anim-float-slow { animation-duration: 10s; }
+  .animated-border::before { display: none; }
+  .anim-float { animation: none; }
+  .anim-float-slow { animation: none; }
   /* Disable expensive backdrop-filter on mobile */
   .glass-panel {
     backdrop-filter: none;
@@ -476,7 +509,10 @@ nextjs-portal,
   .hologram-card::before { display: none; }
   .hologram-card:hover { transform: translateY(-4px); }
   /* Use hardware acceleration for scroll */
-  html { -webkit-overflow-scrolling: touch; }
+  html { 
+    -webkit-overflow-scrolling: touch; 
+    scroll-behavior: smooth;
+  }
   /* Ensure tap targets are large enough */
   a, button { min-height: 44px; min-width: 44px; }
 }
