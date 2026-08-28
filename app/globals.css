@@ -451,12 +451,34 @@ nextjs-portal,
     --container-pad: 20px;
     --section-gap: var(--space-20);
   }
-  /* Disable heavy effects on mobile */
+  /* Disable heavy effects on mobile for performance */
   .shimmer-card::after { display: none; }
   .card-3d:hover { transform: translateY(-3px); }
   .animated-border::before { animation-duration: 8s; }
   .anim-float { animation-duration: 6s; }
   .anim-float-slow { animation-duration: 10s; }
+  /* Disable expensive backdrop-filter on mobile */
+  .glass-panel {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255,255,255,0.92);
+  }
+  /* Disable text shimmer on mobile — heavy GPU usage */
+  .text-mask-reveal {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: var(--text-primary);
+    color: var(--text-primary);
+  }
+  /* Disable pulse on mobile */
+  .anim-pulse-soft { animation: none; }
+  /* Simpler hologram on mobile */
+  .hologram-card::before { display: none; }
+  .hologram-card:hover { transform: translateY(-4px); }
+  /* Use hardware acceleration for scroll */
+  html { -webkit-overflow-scrolling: touch; }
+  /* Ensure tap targets are large enough */
+  a, button { min-height: 44px; min-width: 44px; }
 }
 
 @media (max-width: 480px) {
@@ -466,4 +488,9 @@ nextjs-portal,
   }
   .card-3d { transform-style: flat; }
   .card-3d:hover { transform: translateY(-2px); }
+  /* Disable all continuous animations on very small screens */
+  .gradient-text-anim { animation: none; }
+  .anim-orbit { animation: none; }
+  .animated-border::before { animation: none; }
 }
+

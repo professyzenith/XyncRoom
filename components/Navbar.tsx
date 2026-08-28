@@ -27,6 +27,14 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -95,11 +103,9 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav
-          className="hidden md:flex"
-          style={{ display: "flex", alignItems: "center", gap: 4 }}
-        >
+        {/* Desktop nav — hidden on mobile */}
+        {!isMobile && (
+        <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {NAV_LINKS.map(({ label, href }) => (
             <motion.a
               key={label}
@@ -119,8 +125,9 @@ export default function Navbar() {
             </motion.a>
           ))}
         </nav>
+        )}
 
-        {/* Desktop CTAs */}
+        {/* Desktop CTAs + Mobile Hamburger */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <motion.div whileHover={{ color: "var(--text-100)" }}>
             <Link
@@ -164,25 +171,27 @@ export default function Navbar() {
             </Link>
           </motion.div>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile menu toggle — only visible on mobile */}
+          {isMobile && (
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setMobileOpen(!mobileOpen)}
             style={{
-              display: "none",
-              width: 34,
-              height: 34,
+              display: "flex",
+              width: 38,
+              height: 38,
               borderRadius: 8,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: scrolled ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.04)",
+              border: "1px solid rgba(0,0,0,0.10)",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
               color: "var(--text-200)",
             }}
           >
-            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </motion.button>
+          )}
         </div>
       </motion.header>
 
@@ -200,9 +209,8 @@ export default function Navbar() {
               left: 0,
               right: 0,
               zIndex: 999,
-              background: "rgba(8,11,16,0.98)",
-              backdropFilter: "blur(20px)",
-              borderBottom: "1px solid rgba(255,255,255,0.07)",
+              background: "rgba(245,247,245,0.98)",
+              borderBottom: "1px solid rgba(0,0,0,0.08)",
               padding: "16px 24px",
               display: "flex",
               flexDirection: "column",
@@ -215,11 +223,12 @@ export default function Navbar() {
                 href={href}
                 onClick={() => setMobileOpen(false)}
                 style={{
-                  padding: "12px 0",
-                  fontSize: "1rem",
-                  color: "var(--text-200)",
+                  padding: "14px 0",
+                  fontSize: "1.05rem",
+                  fontWeight: 600,
+                  color: "var(--text-100)",
                   textDecoration: "none",
-                  borderBottom: "1px solid rgba(255,255,255,0.05)",
+                  borderBottom: "1px solid rgba(0,0,0,0.07)",
                 }}
               >
                 {label}

@@ -32,16 +32,16 @@ const P = {
   amber:   "#9a7830",   /* Sam */
 };
 
-/* ─── Waveform bars ─── */
+/* ─── Waveform bars — lighter on mobile ─── */
 function Waveform({ color }: { color: string }) {
-  const h = [3, 7, 13, 7, 5, 11, 5, 9, 4, 8, 12, 6, 3];
+  const h = [3, 7, 13, 7, 5, 11, 5];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 2, height: 14 }}>
       {h.map((v, i) => (
         <motion.div
           key={i}
-          animate={{ height: [v, v * 1.7, v * 0.6, v * 1.3, v] }}
-          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.07, ease: "easeInOut" }}
+          animate={{ height: [v, v * 1.7, v * 0.6, v] }}
+          transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
           style={{ width: 2, borderRadius: 2, background: color, opacity: 0.65 }}
         />
       ))}
@@ -91,16 +91,13 @@ function CameraFeed({
       />
 
       {/* Avatar */}
-      <motion.div
-        animate={speaking ? { scale: [1, 1.03, 1] } : {}}
-        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+      <div
         style={{
           position: "absolute", top: "50%", left: "50%",
           transform: "translate(-50%, -50%)",
           width: 36, height: 36, borderRadius: "50%",
           background: `rgba(17,17,19,0.7)`,
           border: `1px solid ${color}35`,
-          backdropFilter: "blur(8px)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "var(--font-display)",
           fontWeight: "var(--weight-black)",
@@ -109,7 +106,7 @@ function CameraFeed({
         }}
       >
         {initials}
-      </motion.div>
+      </div>
 
       {/* Name row */}
       <div style={{
@@ -363,6 +360,14 @@ function MeetingRoomUI() {
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function Hero({ visible }: { visible: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const rawX = useMotionValue(0.5);
   const rawY = useMotionValue(0.5);
@@ -374,6 +379,7 @@ export default function Hero({ visible }: { visible: boolean }) {
   const uiY     = useTransform(smoothY, [0, 1], [-4, 4]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (isMobile) return; // skip on touch devices
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     rawX.set((e.clientX - rect.left) / rect.width);
@@ -410,14 +416,14 @@ export default function Hero({ visible }: { visible: boolean }) {
 
       {/* Removed WebGL background for cleaner text readability */}
 
-      <div className="container" style={{ position: "relative", zIndex: 2 }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "0.9fr 1.1fr",
-          gap: "var(--space-16)",
-          alignItems: "center",
-          minHeight: "calc(100vh - 140px)",
-        }}>
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "0.9fr 1.1fr",
+            gap: isMobile ? "40px" : "var(--space-16)",
+            alignItems: "center",
+            minHeight: isMobile ? "auto" : "calc(100vh - 140px)",
+          }}>
 
           {/* ── Left: Copy ── */}
           <div>
@@ -538,7 +544,8 @@ export default function Hero({ visible }: { visible: boolean }) {
             </motion.div>
           </div>
 
-          {/* ── Right: Meeting Room ── */}
+          {/* ── Right: Meeting Room — hidden on small phones ── */}
+          {!isMobile && (
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 18 }}
             animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.92, y: visible ? 0 : 18 }}
@@ -592,6 +599,7 @@ export default function Hero({ visible }: { visible: boolean }) {
               </div>
             </motion.div>
           </motion.div>
+          )}
 
         </div>
       </div>
